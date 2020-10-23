@@ -28,8 +28,6 @@ const authorizationServer = new AuthorizationServer(
 
 authorizationServer.enableGrantType("authorization_code", new DateInterval("1m"));
 authorizationServer.enableGrantType("client_credentials", new DateInterval("1m"));
-authorizationServer.enableGrantType("implicit", new DateInterval("1m"));
-authorizationServer.enableGrantType("password", new DateInterval("1m"));
 authorizationServer.enableGrantType("refresh_token", new DateInterval("1m"));
 
 export { authorizationServer as inMemoryAuthorizationServer };

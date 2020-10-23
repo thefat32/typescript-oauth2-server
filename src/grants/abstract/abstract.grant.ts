@@ -40,8 +40,6 @@ export abstract class AbstractGrant implements GrantInterface {
     "client_credentials",
     "authorization_code",
     "refresh_token",
-    "password",
-    "implicit",
   ];
 
   abstract readonly identifier: GrantIdentifier;

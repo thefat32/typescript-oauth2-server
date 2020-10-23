@@ -14,8 +14,6 @@ export * from "./entities/user.entity";
 export * from "./exceptions/oauth.exception";
 export * from "./grants/auth_code.grant";
 export * from "./grants/client_credentials.grant";
-export * from "./grants/implicit.grant";
-export * from "./grants/password.grant";
 export * from "./grants/refresh_token.grant";
 export * from "./grants/abstract/abstract.grant";
 export * from "./grants/abstract/abstract_authorized.grant";

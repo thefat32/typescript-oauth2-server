@@ -3,11 +3,9 @@ import { RequestInterface } from "../../requests/request";
 import { ResponseInterface } from "../../responses/response";
 import { DateInterval } from "../../utils/date_interval";
 
-export type GrantIdentifier = "authorization_code" | "client_credentials" | "refresh_token" | "password" | "implicit";
+export type GrantIdentifier = "authorization_code" | "client_credentials" | "refresh_token";
 
 export interface GrantInterface {
-  requiresPKCE: boolean;
-
   identifier: GrantIdentifier;
 
   canRespondToAccessTokenRequest(request: RequestInterface): boolean;

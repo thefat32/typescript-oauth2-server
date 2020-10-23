@@ -2,8 +2,6 @@ import { OAuthException } from "./exceptions/oauth.exception";
 import { GrantIdentifier, GrantInterface } from "./grants/abstract/grant.interface";
 import { AuthCodeGrant } from "./grants/auth_code.grant";
 import { ClientCredentialsGrant } from "./grants/client_credentials.grant";
-import { ImplicitGrant } from "./grants/implicit.grant";
-import { PasswordGrant } from "./grants/password.grant";
 import { RefreshTokenGrant } from "./grants/refresh_token.grant";
 import { OAuthTokenRepository } from "./repositories/access_token.repository";
 import { OAuthAuthCodeRepository } from "./repositories/auth_code.repository";
@@ -41,22 +39,6 @@ export class AuthorizationServer {
       this.userRepository,
       this.jwt,
     ),
-    implicit: new ImplicitGrant(
-      this.authCodeRepository,
-      this.clientRepository,
-      this.tokenRepository,
-      this.scopeRepository,
-      this.userRepository,
-      this.jwt,
-    ),
-    password: new PasswordGrant(
-      this.authCodeRepository,
-      this.clientRepository,
-      this.tokenRepository,
-      this.scopeRepository,
-      this.userRepository,
-      this.jwt,
-    ),
     refresh_token: new RefreshTokenGrant(
       this.authCodeRepository,
       this.clientRepository,
@@ -74,13 +56,10 @@ export class AuthorizationServer {
     private readonly scopeRepository: OAuthScopeRepository,
     private readonly userRepository: OAuthUserRepository,
     private readonly jwt: JwtInterface,
-    private readonly options: AuthorizationServerOptions = { requiresPKCE: true },
   ) {}
 
   enableGrantType(grantType: GrantIdentifier, accessTokenTTL: DateInterval = new DateInterval("1h")): void {
-    const grant = this.availableGrants[grantType];
-    grant.requiresPKCE = this.options.requiresPKCE;
-    this.enabledGrantTypes[grantType] = grant;
+    this.enabledGrantTypes[grantType] = this.availableGrants[grantType];
     this.grantTypeAccessTokenTTL[grantType] = accessTokenTTL;
   }
 

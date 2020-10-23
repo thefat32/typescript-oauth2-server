@@ -163,7 +163,7 @@ describe("authorization_code grant", () => {
       expect(authorizationRequest.scopes).toStrictEqual([{ name: "scope-1" }]);
     });
 
-    it("is successful without using PKCE flow", async () => {
+    it("throws when missing PKCE code_challenge", async () => {
       // arrange
       request = new OAuthRequest({
         query: {
@@ -173,18 +173,12 @@ describe("authorization_code grant", () => {
           state: "state-is-a-secret",
         },
       });
-      grant.requiresPKCE = false;
 
       // act
-      const authorizationRequest = await grant.validateAuthorizationRequest(request);
+      const authorizationRequest = grant.validateAuthorizationRequest(request);
 
       // assert
-      expect(authorizationRequest.isAuthorizationApproved).toBe(false);
-      expect(authorizationRequest.client.id).toBe(client.id);
-      expect(authorizationRequest.client.name).toBe(client.name);
-      expect(authorizationRequest.redirectUri).toBe("http://example.com");
-      expect(authorizationRequest.state).toBe("state-is-a-secret");
-      expect(authorizationRequest.scopes).toStrictEqual([{ name: "scope-1" }]);
+      await expect(authorizationRequest).rejects.toThrowError(/The request parameter `code_challenge`/)
     });
 
     it("is successful with undefined redirect_uri", async () => {
@@ -320,7 +314,6 @@ describe("authorization_code grant", () => {
     // it("uses clients redirect url if request ", async () => {});
 
     it("is successful without pkce flow", async () => {
-      grant.requiresPKCE = false;
       const authorizationRequest = new AuthorizationRequest("authorization_code", client, "http://example.com");
       authorizationRequest.isAuthorizationApproved = true;
       authorizationRequest.state = "abc123";
@@ -396,7 +389,6 @@ describe("authorization_code grant", () => {
     });
 
     it("is successful without pkce", async () => {
-      grant.requiresPKCE = false;
       authorizationRequest = new AuthorizationRequest("authorization_code", client, "http://example.com");
       authorizationRequest.isAuthorizationApproved = true;
       authorizationRequest.user = user;
@@ -413,13 +405,10 @@ describe("authorization_code grant", () => {
           client_id: client.id,
         },
       });
-      const accessTokenResponse = await grant.respondToAccessTokenRequest(request, response, new DateInterval("1h"));
+      const accessTokenResponse = grant.respondToAccessTokenRequest(request, response, new DateInterval("1h"));
 
       // assert
-      expectTokenResponse(accessTokenResponse);
-      const decodedToken: any = decode(accessTokenResponse.body.access_token);
-      expect(decodedToken?.email).toBe("jason@example.com");
-      expect(accessTokenResponse.body.refresh_token).toMatch(REGEX_ACCESS_TOKEN);
+      await expect(accessTokenResponse).rejects.toThrowError(/The request parameter `code_challenge`/);
     });
 
     it("throws for confidential client when no secret is included in request", async () => {

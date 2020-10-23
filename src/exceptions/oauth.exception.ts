@@ -36,8 +36,8 @@ export class OAuthException extends Error {
    * parameter.
    */
   static invalidRequest(parameter: string, errorDescription?: string): OAuthException {
-    let message = "The request is missing a required parameter, includes an invalid parameter value, ";
-    message += "includes a parameter more than once, or is otherwise malformed";
+    let message = "The request parameter `" + parameter + "` is missing, includes an invalid value, ";
+    message += "includes a value more than once, or is otherwise malformed";
     errorDescription = errorDescription ? errorDescription : `Check the \`${parameter}\` parameter`;
     return new OAuthException(message, ErrorType.InvalidRequest, errorDescription);
   }

@@ -49,8 +49,6 @@ describe("authorization_server", () => {
     refreshGrant = authorizationServer.getGrant("refresh_token");
     authorizationServer.enableGrantType("authorization_code");
     authorizationServer.enableGrantType("client_credentials");
-    authorizationServer.enableGrantType("implicit");
-    authorizationServer.enableGrantType("password");
     authorizationServer.enableGrantType("refresh_token");
 
     user = { id: "abc123" };
@@ -149,82 +147,6 @@ describe("authorization_server", () => {
     expect(decodedCode.client_id).toBe(client.id);
     expect(decodedCode.redirect_uri).toBe("http://localhost");
     expect(decodedCode.code_challenge).toMatch(REGEXP_CODE_CHALLENGE);
-  });
-
-  describe("option requirePKCE", () => {
-    beforeEach(() => {
-      client = {
-        id: "authcodeclient",
-        name: "test auth code client",
-        secret: undefined,
-        redirectUris: ["http://localhost"],
-        allowedGrants: ["authorization_code"],
-        scopes: [scope1, scope2],
-      };
-      inMemoryDatabase.clients[client.id] = client;
-    });
-
-    test("auth server that does not requirePKCE succeeds for request without code_challenge", async () => {
-      authorizationServer = new AuthorizationServer(
-        inMemoryAuthCodeRepository,
-        inMemoryClientRepository,
-        inMemoryAccessTokenRepository,
-        inMemoryScopeRepository,
-        inMemoryUserRepository,
-        new JwtService("secret-key"),
-        { requiresPKCE: false },
-      );
-      authorizationServer.enableGrantType("authorization_code");
-      const request = new OAuthRequest({
-        query: {
-          response_type: "code",
-          client_id: client.id,
-          scope: scope1.name,
-          state: "state-is-a-secret",
-        },
-      });
-
-      // act
-      const validResponse = await authorizationServer.validateAuthorizationRequest(request);
-      validResponse.user = user;
-      validResponse.isAuthorizationApproved = true;
-      const response = await authorizationServer.completeAuthorizationRequest(validResponse);
-
-      // assert
-      const authorizeResponseQuery = querystring.parse(response.headers.location.split("?")[1]);
-      const decodedCode: IAuthCodePayload = <IAuthCodePayload>decode(String(authorizeResponseQuery.code));
-      expect(decodedCode.client_id).toBe(client.id);
-      expect(decodedCode.redirect_uri).toBe("http://localhost");
-      expect(decodedCode.code_challenge).toBeUndefined();
-    });
-
-    test("auth server requiring pkce throws if request is missing code_challenge", async () => {
-      authorizationServer = new AuthorizationServer(
-        inMemoryAuthCodeRepository,
-        inMemoryClientRepository,
-        inMemoryAccessTokenRepository,
-        inMemoryScopeRepository,
-        inMemoryUserRepository,
-        new JwtService("secret-key"),
-      );
-      authorizationServer.enableGrantType("authorization_code");
-      const request = new OAuthRequest({
-        query: {
-          response_type: "code",
-          client_id: client.id,
-          scope: scope1.name,
-          state: "state-is-a-secret",
-        },
-      });
-
-      // act
-      const response = authorizationServer.validateAuthorizationRequest(request);
-
-      // assert
-      await expect(response).rejects.toThrowError(
-        /The authorization server requires public clients to use PKCE RFC-7636/,
-      );
-    });
   });
 
   it("respondToAccessTokenRequest is successful", async () => {
