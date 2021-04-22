@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = "file::memory:"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  passwordHash   String
+  OAuthAuthCodes OAuthAuthCode[]
+  OAuthTokens    OAuthToken[]
+}
+
+model OAuthClient {
+  id            String          @id
+  name          String
+  secret        String?
+  redirectUris  String
+  allowedGrants String
+  scopes        OAuthScope[]
+  OAuthAuthCode OAuthAuthCode[]
+  OAuthToken    OAuthToken[]
+}
+
+//
+model OAuthAuthCode {
+  code                String       @id
+  redirectUri         String?
+  codeChallenge       String?
+  codeChallengeMethod String?
+  expiresAt           DateTime
+  user                User?        @relation(fields: [userId], references: [id])
+  client              OAuthClient  @relation(fields: [oAuthClientId], references: [id])
+  scopes              OAuthScope[]
+  userId              Int?
+  oAuthClientId       String
+}
+
+model OAuthToken {
+  accessToken           String       @id
+  accessTokenExpiresAt  DateTime
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  client                OAuthClient  @relation(fields: [oAuthClientId], references: [id])
+  user                  User?        @relation(fields: [userId], references: [id])
+  scopes                OAuthScope[]
+  oAuthClientId         String
+  userId                Int?
+}
+
+model OAuthScope {
+  id                    String         @id
+  name                  String
+  OAuthAuthCode         OAuthAuthCode? @relation(fields: [oAuthAuthCodeCode], references: [code])
+  oAuthAuthCodeCode     String?
+  OAuthToken            OAuthToken?    @relation(fields: [oAuthTokenAccessToken], references: [accessToken])
+  oAuthTokenAccessToken String?
+  OAuthClient           OAuthClient?   @relation(fields: [oAuthClientId], references: [id])
+  oAuthClientId         String?
+}

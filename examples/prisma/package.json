@@ -1,0 +1,18 @@
+{
+  "name": "prisma-sqlite",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node ./script.ts"
+  },
+  "devDependencies": {
+    "prisma": "2.21.2",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.3"
+  },
+  "dependencies": {
+    "@prisma/client": "2.21.2"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
