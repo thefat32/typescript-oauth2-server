@@ -1,3 +1,8 @@
+import { OAuthAuthCode } from "./entities/auth_code.entity";
+import { OAuthClient } from "./entities/client.entity";
+import { OAuthScope } from "./entities/scope.entity";
+import { OAuthToken } from "./entities/token.entity";
+import { OAuthUser } from "./entities/user.entity";
 import { OAuthException } from "./exceptions/oauth.exception";
 import { GrantIdentifier, GrantInterface } from "./grants/abstract/grant.interface";
 import { AuthCodeGrant } from "./grants/auth_code.grant";
@@ -20,7 +25,13 @@ export interface AuthorizationServerOptions {
   requiresPKCE: boolean;
 }
 
-export class AuthorizationServer {
+export class AuthorizationServer<
+  TAuthCode extends OAuthAuthCode = OAuthAuthCode,
+  TClient extends OAuthClient = OAuthClient,
+  TToken extends OAuthToken = OAuthToken,
+  TScope extends OAuthScope = OAuthScope,
+  TUser extends OAuthUser = OAuthUser
+> {
   private readonly enabledGrantTypes: { [key: string]: GrantInterface } = {};
   private readonly grantTypeAccessTokenTTL: { [key: string]: DateInterval } = {};
 
@@ -70,10 +81,10 @@ export class AuthorizationServer {
   private options: AuthorizationServerOptions;
 
   constructor(
-    private readonly authCodeRepository: OAuthAuthCodeRepository,
-    private readonly clientRepository: OAuthClientRepository,
-    private readonly tokenRepository: OAuthTokenRepository,
-    private readonly scopeRepository: OAuthScopeRepository,
+    private readonly authCodeRepository: OAuthAuthCodeRepository<TAuthCode, TClient, TScope>,
+    private readonly clientRepository: OAuthClientRepository<TClient>,
+    private readonly tokenRepository: OAuthTokenRepository<TToken, TClient, TScope, TUser>,
+    private readonly scopeRepository: OAuthScopeRepository<TScope, TClient>,
     private readonly userRepository: OAuthUserRepository,
     private readonly jwt: JwtInterface,
     options?: Partial<AuthorizationServerOptions>,
