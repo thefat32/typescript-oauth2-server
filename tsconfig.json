@@ -20,5 +20,12 @@
     "sourceMap": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "examples/**/*.ts",
+    ".eslintrc.js",
+    "jest.config.js"
+  ]
 }
